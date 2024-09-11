@@ -7,14 +7,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <omp.h>
 
 int main () 
 {
   int i;
-
- // omp_set_num_threads ( 32 );
 
   #pragma omp parallel 
   { 
