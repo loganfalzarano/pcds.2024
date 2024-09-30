@@ -61,6 +61,7 @@ void omp_countTokensElementsFirst (unsigned int num_els, unsigned int num_tokens
                   unsigned int* elements, unsigned int* tokens, unsigned int* token_counts) {
 
     //TODO parallel for
+    #pragma omp parallel for
     /* for all elements in the array */
     for (int el=0; el<num_els; el++) {
         /* for all tokens in the list */
@@ -78,6 +79,7 @@ void omp_countTokensTokensFirst (unsigned int num_els, unsigned int num_tokens,
                              unsigned int* elements, unsigned int* tokens, unsigned int* token_counts) {
 
     //TODO parallel for
+    #pragma omp parallel for
     /* for all tokens in the list */
     for (int tok=0; tok<num_tokens; tok++) {
         /* for all elements in the array */
@@ -95,6 +97,7 @@ void omp_countTokensElementsFirst_reduce (unsigned int num_els, unsigned int num
                              unsigned int* elements, unsigned int* tokens, unsigned int* token_counts) {
 
     //TODO parallel for reduction
+    #pragma omp parallel for reduction (+: token_counts[:num_tokens])
     /* for all elements in the array */
     for (int el=0; el<num_els; el++) {
         /* for all tokens in the list */
@@ -111,7 +114,9 @@ void omp_countTokensElementsFirst_reduce (unsigned int num_els, unsigned int num
 void omp_countTokensTokensFirst_reduce (unsigned int num_els, unsigned int num_tokens,
                              unsigned int* elements, unsigned int* tokens, unsigned int* token_counts) {
 
+    // int token_count_partial = 0; TODO: ask if this could be done using a single variable with accumulation
     //TODO parallel for reduction
+    #pragma omp parallel for reduction (+: token_counts[:num_tokens])
     /* for all tokens in the list */
     for (int tok=0; tok<num_tokens; tok++) {
         /* for all elements in the array */
@@ -121,6 +126,7 @@ void omp_countTokensTokensFirst_reduce (unsigned int num_els, unsigned int num_t
                 token_counts[tok]++;
             }
         }
+        // token_counts[tok] = token_count_partial;
     }
 }
 
@@ -130,14 +136,37 @@ void unroll_omp_countTokensElementsFirst_reduce (unsigned int num_els, unsigned 
                              unsigned int* elements, unsigned int* tokens, unsigned int* token_counts) {
 
     //TODO parallel for reduction 
+    #pragma omp parallel for reduction (+: token_counts[:num_tokens])
     /* for all elements in the array */
     for (int el=0; el<num_els; el++) {
         /* for all tokens in the list */
         for (int tok=0; tok<num_tokens; tok+=8) {
             //TODO unroll loop 8 times
-            /* update the count for the token */
-            if (elements[el] == tokens[tok]) {
-                token_counts[tok]++;
+            // /* update the count for the token */
+            // if (elements[el] == tokens[tok]) {
+            //     token_counts[tok]++;
+            // }
+
+            if (elements[el] == tokens[tok+1]) { //assuming num_tokens is multiple of 8. If it is not, we need to add a check here such as if (tok+1 < num_tokens && elements[el] == tokens[tok+1])
+                token_counts[tok+1]++;
+            }
+            if (elements[el] == tokens[tok+2]) {
+                token_counts[tok+2]++;
+            }
+            if (elements[el] == tokens[tok+3]) {
+                token_counts[tok+3]++;
+            }
+            if (elements[el] == tokens[tok+4]) {
+                token_counts[tok+4]++;
+            }
+            if (elements[el] == tokens[tok+5]) {
+                token_counts[tok+5]++;
+            }
+            if (elements[el] == tokens[tok+6]) {
+                token_counts[tok+6]++;
+            }
+            if (elements[el] == tokens[tok+7]) {
+                token_counts[tok+7]++;
             }
         }
     }
